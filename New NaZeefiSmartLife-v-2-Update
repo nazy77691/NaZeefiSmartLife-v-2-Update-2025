@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NaZeefi Smart Life</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Roboto',sans-serif; }
+body { background:#fff; color:#121212; scroll-behavior:smooth; transition:all 0.3s; }
+a { text-decoration:none; color:inherit; }
+.container { width:90%; max-width:1200px; margin:0 auto; }
+h1,h2,h3 { font-weight:700; }
+p { line-height:1.6; }
+nav { width:100%; background:linear-gradient(90deg,#0ff,#8a2be2); padding:1rem 0; position:sticky; top:0; z-index:100; display:flex; justify-content:space-around; align-items:center; }
+nav a { margin:0 1rem; font-weight:700; transition:color 0.3s; }
+nav a:hover { color:#ff0; }
+.auth-buttons { display:flex; align-items:center; }
+.auth-buttons button { margin-left:10px; padding:0.5rem 1rem; background:rgba(255,255,255,0.2); border:1px solid #fff; color:#fff; border-radius:5px; cursor:pointer; transition:background 0.3s; }
+.auth-buttons button:hover { background: rgba(255,255,255,0.4); }
+.hero { text-align:center; padding:100px 20px; background:radial-gradient(circle,#0ff,#8a2be2); color:#fff; }
+.hero h1 { font-size:3rem; margin-bottom:1rem; }
+.hero p { font-size:1.2rem; margin-bottom:2rem; }
+.btn { padding:0.8rem 2rem; margin:0 0.5rem; background: rgba(255,255,255,0.1); border:2px solid #0ff; border-radius:8px; cursor:pointer; transition: all 0.4s; position:relative; overflow:hidden; z-index:1; }
+.btn::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background: conic-gradient(#ff0000,#00ff00,#0000ff,#ff00ff,#ff0000); filter:blur(30px); opacity:0.5; animation: floatGlow 6s linear infinite; z-index:-1; }
+.btn:hover { color:#121212; }
+section { padding:80px 0; opacity:0; transform:translateY(20px); transition: all 0.8s ease-out; }
+section.visible { opacity:1; transform:translateY(0); }
+section h2 { text-align:center; margin-bottom:2rem; font-size:2rem; }
+#authSection input, #authSection button { padding:10px; margin:5px 0; border-radius:5px; border:1px solid #ccc; width:100%; max-width:400px; display:block; margin-left:auto; margin-right:auto; }
+#authSection h2 { margin-top:0; }
+#authSection button { background:#8a2be2; color:white; cursor:pointer; border:none; }
+#authSection p { text-align:center; }
+.cards { display:grid; grid-template-columns: repeat(auto-fit,minmax(250px,1fr)); gap:1.5rem; margin-top:2rem; }
+.card { background: rgba(0,255,255,0.1); padding:1.5rem; border-radius:12px; text-align:center; transition: all 0.5s ease-in-out; cursor:pointer; position:relative; overflow:hidden; }
+.card::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background: conic-gradient(#ff0000,#00ff00,#0000ff,#ff00ff,#ff0000); filter:blur(30px); opacity:0.5; animation: floatGlow 6s linear infinite; z-index:0; }
+.card:hover { transform: translateY(-10px); }
+.comment-area { margin-top:10px; }
+.comment-area textarea { width:100%; padding:8px; border-radius:5px; border:1px solid #ccc; resize:none; }
+.comment-area button { margin-top:5px; padding:5px 15px; background:#8a2be2; color:#fff; border:none; border-radius:5px; cursor:pointer; }
+.comment { margin-top:8px; padding:5px 10px; background: rgba(255,255,255,0.1); border-radius:5px; font-size:0.9rem; }
+.comment strong { color:#0ff; }
+@keyframes floatGlow { 0% { transform: rotate(0deg) translateX(0) translateY(0); } 25% { transform: rotate(90deg) translateX(5px) translateY(-5px); } 50% { transform: rotate(180deg) translateX(0) translateY(5px); } 75% { transform: rotate(270deg) translateX(-5px) translateY(0); } 100% { transform: rotate(360deg) translateX(0) translateY(0); } }
+footer { text-align:center; padding:2rem 0; background:#0a0a0a; color:#777; }
+body.dark-mode { background:#121212; color:#fff; }
+body.dark-mode nav { background: linear-gradient(90deg,#0ff,#8a2be2); }
+body.dark-mode .card { background: rgba(255,255,255,0.05); }
+body.dark-mode footer { background:#0a0a0a; color:#ccc; }
+#darkModeBtn { position:fixed; bottom:20px; right:20px; padding:10px 20px; border-radius:8px; border:2px solid #0ff; background:rgba(255,255,255,0.1); color:#0ff; cursor:pointer; z-index:9999; transition: all 0.3s; }
+</style>
+</head>
+<body>
+
+<nav>
+<a href="#home">Home</a>
+<a href="#users">Users</a>
+<a href="#about">About</a>
+<a href="#product">Product</a>
+<a href="#contact">Contact</a>
+
+<div class="auth-buttons">
+    <span id="userStatus" style="color:#ff0; margin-right:10px; font-weight:700;">Signed Out</span>
+    <button id="signInUpBtn">Sign In / Sign Up</button>
+    <button id="signOutBtn" style="display:none;" onclick="handleSignOut()">Sign Out</button>
+</div>
+</nav>
+
+<section class="hero" id="home">
+<h1>Welcome To NaZeefi Smart Life ✅</h1>
+<p>Technology • Knowledge • Innovation — smooth, interactive, neon-inspired interface.</p>
+<button class="btn">Explore Platform</button>
+<button class="btn">Contact Me</button>
+</section>
+
+<section class="container" id="authSection" style="display:none;">
+<h2>Sign In / Sign Up</h2>
+<input type="email" id="authEmail" placeholder="Enter your Email" required>
+<input type="password" id="authPassword" placeholder="Password (min 6 chars)" required>
+<button id="authActionBtn" onclick="handleAuthAction(true)">Sign Up</button>
+<button onclick="handleAuthAction(false)">Sign In</button>
+<p id="authMessage" style="color:red;"></p>
+<p style="margin-top:15px;">Click "Sign In / Sign Up" in the navigation bar to close.</p>
+</section>
+
+<section class="container" id="users">
+<h2>Users Section</h2>
+<div class="cards" id="usersData"></div>
+</section>
+
+<section class="container" id="postsSection">
+<h2>Posts</h2>
+<div id="createPostArea" style="text-align:center;margin-bottom:20px; display:none;">
+<textarea id="postContent" placeholder="What's on your mind?" rows="3" style="width:80%; padding:10px;"></textarea>
+<br>
+<button id="postBtn" style="margin-top:10px;padding:10px 20px;background:#0ff;color:#121212;border:none;border-radius:5px;cursor:pointer;">Post</button>
+</div>
+<div class="cards" id="postsData"></div>
+</section>
+
+<section class="about" id="about">
+<h2>About NaZeefi Smart Life</h2>
+<p>NaZeefi Smart Life is a personal technology platform created by Muhameed Nazeefi, dedicated to sharing knowledge in emulators, modern applications, and future-focused innovation.</p>
+</section>
+
+<section class="container" id="product">
+<h2>Our Products & Features</h2>
+<div class="cards">
+<div class="card">Tech Tutorials</div>
+<div class="card">Emulator Guides</div>
+<div class="card">Innovation Projects</div>
+<div class="card">Future Mobile App</div>
+</div>
+</section>
+
+<section class="contact" id="contact">
+<h2>Contact Me</h2>
+<p>WhatsApp: <a href="https://wa.me/2348060382174" target="_blank">+2348060382174</a></p>
+<p>Email: <a href="mailto:muhammeednazeefi926@gmail.com">muhammeednazeefi926@gmail.com</a></p>
+</section>
+
+<footer>&copy; 2025 NaZeefi Smart Life. All rights reserved.</footer>
+<button id="darkModeBtn">🌙</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyBKNf4vKh5pvtz3pp7tVwO7NCWTS_vFzJE",
+    authDomain: "nazeefismartlife.firebaseapp.com",
+    projectId: "nazeefismartlife",
+    storageBucket: "nazeefismartlife.firebasestorage.app",
+    messagingSenderId: "751096130892",
+    appId: "1:751096130892:web:95cf7eb038b32313d673e9"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// DOM Elements
+const signInUpBtn = document.getElementById('signInUpBtn');
+const signOutBtn = document.getElementById('signOutBtn');
+const userStatus = document.getElementById('userStatus');
+const authSection = document.getElementById('authSection');
+const authEmail = document.getElementById('authEmail');
+const authPassword = document.getElementById('authPassword');
+const authActionBtn = document.getElementById('authActionBtn');
+const authMessage = document.getElementById('authMessage');
+const createPostArea = document.getElementById('createPostArea');
+const postContent = document.getElementById('postContent');
+const postBtn = document.getElementById('postBtn');
+const postsData = document.getElementById('postsData');
+const usersData = document.getElementById('usersData');
+
+// Show / Hide Auth Section
+signInUpBtn.addEventListener('click', () => {
+    authSection.style.display = authSection.style.display === 'none' ? 'block' : 'none';
+});
+
+// Sign Out
+window.handleSignOut = () => {
+    signOut(auth).then(() => {
+        userStatus.textContent = 'Signed Out';
+        signOutBtn.style.display = 'none';
+        signInUpBtn.style.display = 'inline-block';
+        createPostArea.style.display = 'none';
+    });
+};
+
+// Handle Sign In / Sign Up
+window.handleAuthAction = (isSignUp) => {
+    const email = authEmail.value;
+    const password = authPassword.value;
+
+    if (!email || !password) {
+        authMessage.textContent = 'Please fill in all fields.';
+        return;
+    }
+
+    if (isSignUp) {
+        createUserWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+            authMessage.textContent = '';
+            authSection.style.display = 'none';
+        })
+        .catch(error => {
+            authMessage.textContent = error.message;
+        });
+    } else {
+        signInWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+            authMessage.textContent = '';
+            authSection.style.display = 'none';
+        })
+        .catch(error => {
+            authMessage.textContent = error.message;
+        });
+    }
+};
+
+// Auth State Change
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        userStatus.textContent = user.email;
+        signOutBtn.style.display = 'inline-block';
+        signInUpBtn.style.display = 'none';
+        createPostArea.style.display = 'block';
+        loadPosts();
+        loadUsers();
+        addUserIfNotExist(user.email);
+    } else {
+        userStatus.textContent = 'Signed Out';
+        signOutBtn.style.display = 'none';
+        signInUpBtn.style.display = 'inline-block';
+        createPostArea.style.display = 'none';
+    }
+});
+
+// Create Post
+postBtn.addEventListener('click', async () => {
+    const content = postContent.value.trim();
+    if (!content) return;
+    await addDoc(collection(db, 'posts'), {
+        content,
+        author: auth.currentUser.email,
+        timestamp: serverTimestamp()
+    });
+    postContent.value = '';
+});
+
+// Load Posts
+async function loadPosts() {
+    postsData.innerHTML = '';
+    const q = query(collection(db, 'posts'), orderBy('timestamp', 'desc'));
+    onSnapshot(q, snapshot => {
+        postsData.innerHTML = '';
+        snapshot.forEach(doc => {
+            const post = doc.data();
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.innerHTML = `<strong>${post.author}</strong><p>${post.content}</p>`;
+            postsData.appendChild(card);
+        });
+    });
+}
+
+// Load Users
+async function loadUsers() {
+    usersData.innerHTML = '';
+    const q = collection(db, 'users');
+    onSnapshot(q, snapshot => {
+        usersData.innerHTML = '';
+        snapshot.forEach(doc => {
+            const user = doc.data();
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.textContent = user.email;
+            usersData.appendChild(card);
+        });
+    });
+}
+
+// Add current user to users collection on sign up if not exist
+async function addUserIfNotExist(email) {
+    const userRef = collection(db, 'users');
+    const snapshot = await getDocs(userRef);
+    const exists = snapshot.docs.some(d => d.data().email === email);
+    if (!exists) {
+        await addDoc(userRef, { email, timestamp: serverTimestamp() });
+    }
+}
+
+// Dark Mode
+const darkModeBtn = document.getElementById('darkModeBtn');
+darkModeBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+});
+</script>
+</body>
+</html>
